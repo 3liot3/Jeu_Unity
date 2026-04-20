@@ -132,6 +132,11 @@ public class GameManager : MonoBehaviour
 
         MettreAJourInterfaceVies();
         StartCoroutine(SequenceNouveauBoss());
+
+        if (boutonRetourMenu != null) boutonRetourMenu.SetActive(false);
+
+        MettreAJourInterfaceVies();
+        StartCoroutine(SequenceNouveauBoss());
     }
 
     /// <summary>Appelé chaque frame : gère la zone de combat et la boussole.</summary>
@@ -418,7 +423,7 @@ public class GameManager : MonoBehaviour
             yield return null;
         }
 
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(2f);
 
         if (vies > 0)
         {
@@ -450,13 +455,19 @@ public class GameManager : MonoBehaviour
                 texteAnnonce.gameObject.SetActive(true);
                 texteAnnonce.text = "VOUS ÊTES MORT.";
             }
-            if (boutonRetourMenu != null) boutonRetourMenu.SetActive(true);
+            if (boutonRetourMenu != null)
+            {
+                boutonRetourMenu.SetActive(true);
+                Cursor.visible = true;
+                Cursor.lockState = CursorLockMode.None;
+            }
         }
     }
 
     /// <summary>Charge la scène du menu principal (index 0).</summary>
     public void RetourMenuPrincipal()
     {
+        Time.timeScale = 1f;
         UnityEngine.SceneManagement.SceneManager.LoadScene(0);
     }
 }

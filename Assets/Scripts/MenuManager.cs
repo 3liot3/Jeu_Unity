@@ -1,14 +1,18 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI; // Indispensable pour les Sliders
-using UnityEngine.Audio; // Indispensable pour le Mixer
+using UnityEngine.UI;
+using UnityEngine.Audio;
 
 public class MenuManager : MonoBehaviour
 {
-    [Header("Panneaux")]
+    [Header("Panneaux Principaux")]
     public GameObject panelPrincipal;
     public GameObject panelReglages;
     public GameObject panelInfo;
+
+    [Header("Sous-Panneaux Réglages")]
+    public GameObject panelVolume;
+    public GameObject panelBinds;
 
     [Header("Audio")]
     public AudioMixer masterMixer;
@@ -17,31 +21,25 @@ public class MenuManager : MonoBehaviour
 
     void Start()
     {
-        // On charge les volumes sauvegardés au démarrage
         InitialiserVolume();
         OuvrirMenuPrincipal();
     }
 
+    // --- INITIALISATION AUDIO ---
     private void InitialiserVolume()
     {
-        // On récupère les valeurs sauvegardées (0.75 par défaut)
-        float volMusique = PlayerPrefs.GetFloat("VolMusique", 0.75f);
-        float volSFX = PlayerPrefs.GetFloat("VolSFX", 0.75f);
+        float volMusique = PlayerPrefs.GetFloat("VolMusique", 0.02f);
+        float volSFX = PlayerPrefs.GetFloat("VolSFX", 0.02f);
 
-        // On applique aux sliders
         if (sliderMusique) sliderMusique.value = volMusique;
         if (sliderSFX) sliderSFX.value = volSFX;
 
-        // On applique au mixer
         SetVolumeMusique(volMusique);
         SetVolumeSFX(volSFX);
     }
 
-    // Fonctions appelées par les Sliders (On Value Changed)
     public void SetVolumeMusique(float value)
     {
-        // Le Mixer utilise des Décibels (-80 à 20). Le slider va de 0 à 1.
-        // On utilise un calcul logarithmique pour que ce soit naturel à l'oreille.
         masterMixer.SetFloat("VolumeMusique", Mathf.Log10(value) * 20);
         PlayerPrefs.SetFloat("VolMusique", value);
     }
@@ -52,7 +50,7 @@ public class MenuManager : MonoBehaviour
         PlayerPrefs.SetFloat("VolSFX", value);
     }
 
-    // --- NAVIGATION ET JEU (Garde tes fonctions précédentes) ---
+    // --- LANCEMENT DU JEU ---
     public void LancerJeuNoob() { LancerJeuAvecDifficulte(0); }
     public void LancerJeuNormal() { LancerJeuAvecDifficulte(1); }
     public void LancerJeuExpert() { LancerJeuAvecDifficulte(2); }
@@ -64,7 +62,47 @@ public class MenuManager : MonoBehaviour
         SceneManager.LoadScene("SceneJeu");
     }
 
-    public void OuvrirMenuPrincipal() { panelPrincipal.SetActive(true); panelReglages.SetActive(false); panelInfo.SetActive(false); }
-    public void OuvrirReglages() { panelPrincipal.SetActive(false); panelReglages.SetActive(true); panelInfo.SetActive(false); }
-    public void OuvrirInfo() { panelPrincipal.SetActive(false); panelReglages.SetActive(false); panelInfo.SetActive(true); }
+    // --- NAVIGATION PRINCIPALE ---
+    public void OuvrirMenuPrincipal()
+    {
+        panelPrincipal.SetActive(true);
+        panelReglages.SetActive(false);
+        panelInfo.SetActive(false);
+        panelVolume.SetActive(false); // Sécurité
+        panelBinds.SetActive(false);  // Sécurité
+    }
+
+    public void OuvrirReglages()
+    {
+        panelPrincipal.SetActive(false);
+        panelReglages.SetActive(true);
+        panelInfo.SetActive(false);
+    }
+
+    public void OuvrirInfo()
+    {
+        panelPrincipal.SetActive(false);
+        panelReglages.SetActive(false);
+        panelInfo.SetActive(true);
+    }
+
+    // --- NAVIGATION SOUS-MENUS ---
+    public void ClicBoutonVolume()
+    {
+        panelReglages.SetActive(false);
+        panelVolume.SetActive(true);
+    }
+
+    public void ClicBoutonBinds()
+    {
+        panelReglages.SetActive(false);
+        panelBinds.SetActive(true);
+    }
+
+    public void RetourAuxReglages() // Bouton Retour DEPUIS Volume ou Binds
+    {
+        panelVolume.SetActive(false);
+        panelBinds.SetActive(false);
+        panelReglages.SetActive(true); // On réaffiche le menu Réglages !
+    }
 }
